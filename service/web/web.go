@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/LiangXianSen/gin-demo/config"
 )
 
 type Server struct {
@@ -16,10 +18,10 @@ type Server struct {
 	exit   chan struct{}
 }
 
-func NewServer(port string) *Server {
+func NewServer(conf *config.Config) *Server {
 	return &Server{
-		Port:   port,
-		Router: LoadRouter(routeGroups),
+		Port:   conf.General.Port,
+		Router: LoadRouter(routeGroups, conf),
 		exit:   make(chan struct{}),
 	}
 }

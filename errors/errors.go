@@ -1,9 +1,16 @@
 package errors
 
+import (
+	"fmt"
+
+	"github.com/pkg/errors"
+)
+
 // Error is an internal error
 type Error struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
+	stack   error
 }
 
 // Error implements error interface
@@ -21,8 +28,28 @@ func (e *Error) IsBadRequest() bool {
 	return false
 }
 
-// NewError returns error
-func NewError(code int, message string) error {
+// Wrap returns true if error belongs BadRequest
+func (e *Error) Wrap(err error) *Error {
+	stack := errors.WithStack(err)
+	message := fmt.Sprintf(e.Message + " : " + err.Error())
+	return NewErrorWithStack(e.Code, message, stack)
+}
+
+func (e *Error) Stack() error {
+	return e.stack
+}
+
+// NewError returns Error with runtime stack
+func NewErrorWithStack(code int, message string, stack error) *Error {
+	return &Error{
+		Code:    code,
+		Message: message,
+		stack:   stack,
+	}
+}
+
+// NewError returns Error instance
+func NewError(code int, message string) *Error {
 	return &Error{
 		Code:    code,
 		Message: message,

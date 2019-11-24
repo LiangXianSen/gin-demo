@@ -1,22 +1,23 @@
 package main
 
 import (
-	"flag"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/LiangXianSen/gin-demo/config"
 	"github.com/LiangXianSen/gin-demo/service/web"
 )
 
-var (
-	port = flag.String("port", ":8080", "listen on port")
-)
-
 func main() {
-	flag.Parse()
+	// Load config from toml file
+	conf, err := config.LoadConfig("config.toml")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	webSrv := web.NewServer(*port)
+	webSrv := web.NewServer(conf)
 
 	go webSrv.Run()
 

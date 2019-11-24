@@ -3,6 +3,7 @@ package web
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/LiangXianSen/gin-demo/config"
 	M "github.com/LiangXianSen/gin-demo/middleware"
 )
 
@@ -18,8 +19,9 @@ type Route struct {
 	Handler gin.HandlerFunc
 }
 
-func LoadRouter(routeGroups []RouteGroup) *gin.Engine {
-	routeGroups = InitMiddleware(routeGroups)
+// LoadRouter loads routes returns router
+func LoadRouter(routeGroups []RouteGroup, conf *config.Config) *gin.Engine {
+	routeGroups = InitMiddleware(routeGroups, conf)
 	router := gin.New()
 	for _, rg := range routeGroups {
 		group := router.Group(rg.BasePath)
@@ -31,27 +33,28 @@ func LoadRouter(routeGroups []RouteGroup) *gin.Engine {
 	return router
 }
 
-func InitMiddleware(routeGroups []RouteGroup) []RouteGroup {
+// InitMiddleware preparing work before running
+func InitMiddleware(routeGroups []RouteGroup, conf *config.Config) []RouteGroup {
 	// logger setting
 	loggerOpts := M.LoggerOptions{
-		Application:  "demo",
-		Version:      "v0.0.1",
+		Application:  conf.General.Name,
+		Version:      conf.General.Version,
 		EnableOutput: true,
-		EnableDebug:  true,
+		EnableDebug:  conf.General.Debug,
 	}
 
 	// gin context injector
 	// sets values into ctx of gin
 	injector := func() gin.HandlerFunc {
 		return func(c *gin.Context) {
-			c.Set("conf", "")
+			c.Set("conf", conf)
 		}
 	}()
 
 	var groups []RouteGroup
 	for _, rg := range routeGroups {
+		rg.Middlewares = append([]gin.HandlerFunc{M.LoggerM(loggerOpts)}, rg.Middlewares...)
 		rg.Middlewares = append(rg.Middlewares, injector)
-		rg.Middlewares = append(rg.Middlewares, M.LoggerM(loggerOpts))
 		groups = append(groups, rg)
 	}
 

@@ -12,9 +12,7 @@ var routeGroups = []RouteGroup{
 		BasePath: "/",
 		Middlewares: []gin.HandlerFunc{
 			gin.Recovery(),
-			gin.Logger(),
 			M.RequestID,
-			//M.LoginRequired,
 			M.FaultHandler,
 		},
 		Routes: []Route{

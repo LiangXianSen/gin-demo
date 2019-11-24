@@ -1,0 +1,5 @@
+[general]
+port = ":8080"
+name = "gin-demo"
+version = "v0.0.1"
+debug = true

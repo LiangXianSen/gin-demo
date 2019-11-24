@@ -9,6 +9,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/LiangXianSen/gin-demo/config"
 )
 
 var srv *Server
@@ -27,7 +29,13 @@ func TestMain(m *testing.M) {
 	cwd, _ := os.Getwd()
 	fixturePath = filepath.Join(cwd, "fixtures")
 
-	srv = NewServer(":8080")
+	// Load config from toml file
+	conf, err := config.LoadConfig("config.toml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	srv = NewServer(conf)
 
 	os.Exit(m.Run())
 }

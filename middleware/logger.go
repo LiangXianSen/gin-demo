@@ -11,6 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+
+	"github.com/LiangXianSen/gin-demo/errors"
 )
 
 type F logrus.Fields
@@ -25,6 +27,7 @@ func (log *Logger) Write(msg string, fd interface{}) {
 	log.pipeline[msg] = fd
 }
 
+// NewLogger returns logrus instance
 func NewLogger() *Logger {
 	return &Logger{
 		pipeline: F{},
@@ -39,31 +42,24 @@ type LoggerOptions struct {
 	EnableDebug  bool
 }
 
-// Logger is a middleware which provide a logger in ctx
-// records each handling on os.stdout
+// Logger is a middleware which provide a logger in ctx.
+// Records each handling on os.stdout.
 // nolint:funlen
 func LoggerM(opt LoggerOptions) gin.HandlerFunc {
-	logS := NewLogger()
-
-	logS.SetFormatter(&logrus.JSONFormatter{
-		FieldMap: logrus.FieldMap{
-			logrus.FieldKeyMsg: "application",
-		},
-	})
-
-	logS.SetOutput(os.Stdout)
-	logS.SetLevel(logrus.InfoLevel)
-
-	if opt.EnableDebug {
-		logS.SetLevel(logrus.DebugLevel)
-	}
-
 	return func(c *gin.Context) {
 		start := time.Now()
 		path := c.Request.URL.Path
 		method := c.Request.Method
 		clientIP := c.ClientIP()
 
+		logS := NewLogger()
+		logS.SetFormatter(&logrus.JSONFormatter{})
+		logS.SetOutput(os.Stdout)
+		logS.SetLevel(logrus.InfoLevel)
+
+		if opt.EnableDebug {
+			logS.SetLevel(logrus.DebugLevel)
+		}
 		c.Set("logger", logS)
 
 		// Replace gin writer for backup writer stream
@@ -87,6 +83,7 @@ func LoggerM(opt LoggerOptions) gin.HandlerFunc {
 			"request_id":  requestID,
 			"runtime":     duration,
 			"version":     opt.Version,
+			"application": opt.Application,
 		}
 
 		resp, _ := c.Get("response")
@@ -106,17 +103,18 @@ func LoggerM(opt LoggerOptions) gin.HandlerFunc {
 		filterBodyTooLong(info)
 
 		if err, ok := c.Get("error"); ok {
+			info["error"] = fmt.Sprintf("%v", err)
 			if opt.EnableDebug {
-				info["error"] = fmt.Sprintf("%+v", err) // print error message with runtime stack
-			} else {
-				info["error"] = fmt.Sprintf("%v", err)
+				if e, ok := err.(*errors.Error); ok && e.Stack() != nil {
+					info["error"] = fmt.Sprintf("%+v", err.(*errors.Error).Stack())
+				}
 			}
-			logS.WithFields(logrus.Fields(info)).Error(opt.Application)
+			logS.WithFields(logrus.Fields(info)).Error("error occurred")
 			return
 		}
 
 		if opt.EnableOutput {
-			logS.WithFields(logrus.Fields(info)).Info(opt.Application)
+			logS.WithFields(logrus.Fields(info)).Info("finished")
 		}
 	}
 }
