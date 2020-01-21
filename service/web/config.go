@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/LiangXianSen/gin-demo/config"
-	M "github.com/LiangXianSen/gin-demo/middleware"
+	M "github.com/LiangXianSen/go-utils/middleware"
 )
 
 type RouteGroup struct {

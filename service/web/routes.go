@@ -3,7 +3,7 @@ package web
 import (
 	"github.com/gin-gonic/gin"
 
-	M "github.com/LiangXianSen/gin-demo/middleware"
+	M "github.com/LiangXianSen/go-utils/middleware"
 )
 
 /* Register routes here */

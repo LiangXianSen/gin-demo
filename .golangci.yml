@@ -43,6 +43,7 @@ linters:
     - gochecknoglobals
     - goimports
     - prealloc
+    - wsl
   presets:
     - bugs
     - unused

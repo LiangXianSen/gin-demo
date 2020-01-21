@@ -20,7 +20,9 @@ $(TARGET): $(SRC)
 	@$(GO) build $(project)/cmd/$@
 
 test: check
-	@$(GO) test -v -cover -race $(packages)
+	@$(GO) test -race $(packages) -v -coverprofile=.coverage.out
+	@$(GO) tool cover -func=.coverage.out
+	@rm -f .coverage.out
 
 check:
 	@$(GO) vet -composites=false $(packages)
