@@ -6,7 +6,8 @@ import (
 	M "github.com/LiangXianSen/go-utils/middleware"
 )
 
-/* Register routes here */
+/* register routes here */
+
 var routeGroups = []RouteGroup{
 	{
 		BasePath: "/",

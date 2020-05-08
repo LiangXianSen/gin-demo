@@ -15,7 +15,7 @@ type General struct {
 	Debug   bool   `toml:"debug"`
 }
 
-// LoadConfig deserialize config from toml file
+// LoadConfig deserialize config from toml file.
 func LoadConfig(fp string) (*Config, error) {
 	var c Config
 	_, err := toml.DecodeFile(fp, &c)

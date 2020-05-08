@@ -19,7 +19,7 @@ type Route struct {
 	Handler gin.HandlerFunc
 }
 
-// LoadRouter loads routes returns router
+// LoadRouter loads routes returns router.
 func LoadRouter(routeGroups []RouteGroup, conf *config.Config) *gin.Engine {
 	routeGroups = InitMiddleware(routeGroups, conf)
 	router := gin.New()
@@ -33,7 +33,7 @@ func LoadRouter(routeGroups []RouteGroup, conf *config.Config) *gin.Engine {
 	return router
 }
 
-// InitMiddleware preparing work before running
+// InitMiddleware preparing work before running.
 func InitMiddleware(routeGroups []RouteGroup, conf *config.Config) []RouteGroup {
 	// logger setting
 	loggerOpts := M.LoggerOptions{
